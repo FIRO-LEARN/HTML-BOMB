@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <style>
+        body {
+            background-color: #9d9d9d;
+        }
+
+        * {
+            text-align: center;
+        }
+
+        h1 {
+            color: red;
+        }
+
+        h1 b {
+            color: blue;
+        }
+
+        #board {
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        #board tr td {
+            border: 1px solid white;
+            background: #34da79;
+            width: 16px;
+            height: 16px;
+            text-align: center;
+        }
+
+        #board tr td.clicked {
+            background: #FF0000
+        }
+
+        #board tr td.mine {
+            background: #6c5ee7;
+        }
+
+        button {
+            font-size: 20px;
+            margin-top: 10px;
+        }
+
+        #timer {
+            font-size: 32px;
+            margin-top: 20px;
+            font-weight: bold;
+            color: red;
+        }
+
+        #animationBox {
+            width: 100px;
+            height: 100px;
+            background-color: #000;
+            opacity: 0;
+            margin: 20px auto;
+        }
+
+        @keyframes fade {
+            0%, 80% {
+                opacity: 0;
+            }
+
+            95% {
+                opacity: 1;
+            }
+
+            100% {
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <h1>폭탄 <b>제거반</b></h1>
+    <div id="timer">타이머: 0초</div>
+    <table id="board"></table>
+    <button onclick="genGrid(); resetTimer();">커리어 재시작</button>
+    <br />
+    <img style="margin-top: 30px; max-width: 90%;" src="https://lh6.googleusercontent.com/proxy/6yDRf4TtZ1paV6pa8WTiEdl4Y8MntAFhAiAQQ2m5WrpI10FRiPVKjQ2sRIfMi8xJm2TxKcaJuE3Gozdq6a89jYCiwfji4KHb0aIDbIxFgR9qai6_ZHOMsMdHiMhQ8h343i-UZAcZ" />
+    <script>
+        let grid = document.getElementById("board");
+        let timerElement = document.getElementById("timer");
+        let time = 40;
+        let timerInterval;
+        let safeCells = 0;
+        let clickedCells = 0;
+
+        function startTimer() {
+            timerInterval = setInterval(function () {
+                time--;
+
+                timerElement.innerText = `남은 시간: ${time}초`;
+
+                console.log(time);
+                if (time % 10 === 0) {
+                    triggerAnim();
+                }
+
+                if (time === 0) {
+                    clearInterval(timerInterval);
+                    document.body.style.backgroundColor = "black";
+                    alert("💀 임무에 실패했습니다. 🧨💥\n 당신은 무능합니다\n인사팀은 당신을 평가 할 것입니다");
+                }
+            }, 1000);
+        }
+
+        function resetTimer() {
+            clearInterval(timerInterval);
+            time = 40;
+            timerElement.innerText = `타이머: ${time}초`;
+            startTimer();
+        }
+
+        function triggerAnim() {
+            timerElement.style.animation = "fade 10s infinite";
+        }
+
+        genGrid();
+        startTimer();
+        triggerAnim();
+
+        function genGrid() {
+            grid.innerHTML = "";
+            safeCells = 0;
+            clickedCells = 0;
+            for (let i = 0; i < 8; i++) {
+                row = grid.insertRow(i);
+                for (var j = 0; j < 8; j++) {
+                    cell = row.insertCell(j);
+                    cell.onclick = function () { clickBox(this); };
+                    var mine = document.createAttribute("mine");
+                    if (Math.random() < 0.3) {
+                        mine.value = "true";
+                    } else {
+                        mine.value = "false";
+                        safeCells++;
+                    }
+                    cell.setAttributeNode(mine);
+                }
+            }
+        }
+
+        function clickBox(cell) {
+            if (cell.getAttribute("mine") == "true") {
+                cell.className = "mine";
+                alert("💀 임무에 실패했습니다. 🧨💥\n 당신은 무능합니다\n인사팀은 당신을 평가 할 것입니다");
+                timerElement.style.animation = "none";
+                clearInterval(timerInterval);
+            } else {
+                if (!cell.classList.contains("clicked")) {
+                    cell.className = "clicked";
+                    clickedCells++;
+
+                    if (clickedCells === safeCells) {
+                        clearInterval(timerInterval);
+                        alert("🎉 당신은 안전하게 폭탄을 제거했습니다\n보상은 없습니다");
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+
+</html>
